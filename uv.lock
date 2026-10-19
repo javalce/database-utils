@@ -151,6 +151,8 @@ dev = [
     { name = "mypy" },
     { name = "pydantic" },
     { name = "ruff" },
+    { name = "sqlalchemy", version = "2.0.55", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "sqlalchemy", version = "2.1.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
 ]
 lint = [
     { name = "black" },
@@ -159,7 +161,7 @@ lint = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "sqlalchemy", marker = "extra == 'sqlalchemy'", specifier = ">=2.0.55" }]
+requires-dist = [{ name = "sqlalchemy", marker = "extra == 'sqlalchemy'" }]
 provides-extras = ["sqlalchemy"]
 
 [package.metadata.requires-dev]
@@ -168,6 +170,7 @@ dev = [
     { name = "mypy", specifier = ">=2.4.0" },
     { name = "pydantic", specifier = ">=2.14.1" },
     { name = "ruff", specifier = ">=0.17.1" },
+    { name = "sqlalchemy", specifier = ">=2.0.55" },
 ]
 lint = [
     { name = "black", specifier = ">=26.10.1" },
