@@ -14,8 +14,11 @@ dependencies = []
 Homepage = "https://github.com/javalce/database-utils"
 Repository = "https://github.com/javalce/database-utils"
 
+[project.optional-dependencies]
+sqlalchemy = ["sqlalchemy>=2.0.55"]
+
 [dependency-groups]
-dev = [{ include-group = "lint" }]
+dev = [{ include-group = "lint" }, "pydantic>=2.14.1"]
 lint = ["black>=26.10.1", "mypy>=2.4.0", "ruff>=0.17.1"]
 
 [build-system]
