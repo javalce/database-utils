@@ -1,6 +1,6 @@
 [project]
 name = "database-utils"
-version = "0.1.0a1"
+version = "0.1.0a2"
 description = "Lightweight, extensible Python database utilities. Less boilerplate, same control."
 readme = "README.md"
 license = "MIT"
