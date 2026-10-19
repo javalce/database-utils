@@ -1,0 +1,57 @@
+[project]
+name = "database-utils"
+version = "0.1.0"
+description = "Lightweight, extensible Python database utilities. Less boilerplate, same control."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+keywords = ["database"]
+authors = [{ name = "Javier Valero Cejudo", email = "javalce29@gmail.com" }]
+requires-python = ">=3.10"
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/javalce/database-utils"
+Repository = "https://github.com/javalce/database-utils"
+
+[dependency-groups]
+dev = [{ include-group = "lint" }]
+lint = ["black>=26.10.1", "mypy>=2.4.0", "ruff>=0.17.1"]
+
+[build-system]
+requires = ["uv_build>=0.13.0,<0.14.0"]
+build-backend = "uv_build"
+
+[tool.black]
+line-length = 100
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # line too long, handled by black
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.lint.isort]
+known-third-party = ["fastapi", "pydantic", "starlette"]
+
+[tool.ruff.lint.pyupgrade]
+# Preserve types, even if a file imports `from __future__ import annotations`.
+keep-runtime-typing = true
