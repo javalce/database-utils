@@ -12,3 +12,6 @@ wheels/
 htmlcov
 .coverage
 odd
+
+# Docs
+site/

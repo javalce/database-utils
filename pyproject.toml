@@ -36,12 +36,20 @@ Repository = "https://github.com/javalce/database-utils"
 [project.optional-dependencies]
 sqlalchemy = ["sqlalchemy"]
 
+
 [dependency-groups]
 dev = [
     { include-group = "lint" },
     { include-group = "tests" },
+    { include-group = "docs" },
     "sqlalchemy>=2.0.55",
     "pydantic>=2.14.0",
+]
+docs = [
+    "markdown-include-variants>=0.0.8",
+    "mdx-include>=1.4.2",
+    "mkdocstrings[python]>=1.0.6",
+    "zensical>=0.0.67",
 ]
 lint = ["black>=26.10.1", "mypy>=2.4.0", "ruff>=0.17.0"]
 tests = [
