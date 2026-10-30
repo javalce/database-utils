@@ -37,8 +37,19 @@ Repository = "https://github.com/javalce/database-utils"
 sqlalchemy = ["sqlalchemy"]
 
 [dependency-groups]
-dev = [{ include-group = "lint" }, "sqlalchemy>=2.0.55", "pydantic>=2.14.1"]
-lint = ["black>=26.10.1", "mypy>=2.4.0", "ruff>=0.17.1"]
+dev = [
+    { include-group = "lint" },
+    { include-group = "tests" },
+    "sqlalchemy>=2.0.55",
+    "pydantic>=2.14.0",
+]
+lint = ["black>=26.10.1", "mypy>=2.4.0", "ruff>=0.17.0"]
+tests = [
+    "coverage[toml]>=7.16.2",
+    "pytest>=9.2.0",
+    "pytest-cov>=7.1.0",
+    "pytest-sugar>=1.1.1",
+]
 
 [build-system]
 requires = ["uv_build>=0.13.0,<0.14.0"]
@@ -51,6 +62,50 @@ line-length = 100
 python_version = "3.10"
 strict = true
 
+[[tool.mypy.overrides]]
+module = "tests.*"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "database_utils.tests.*"
+ignore_missing_imports = true
+check_untyped_defs = true
+
+[tool.pytest]
+minversion = "9.0"
+filterwarnings = ["error", "ignore::sqlalchemy.exc.SAWarning"]
+testpaths = ["tests"]
+addopts = [
+    "--strict-config",
+    "--strict-markers",
+    "--cov=database_utils",
+    "--cov-report=term-missing",
+    "--cov-fail-under=80",
+]
+strict_xfail = true
+
+[tool.coverage.run]
+patch = ["subprocess", "_exit"]
+parallel = true
+source = ["src/database_utils"]
+relative_files = true
+context = '${CONTEXT}'
+omit = []
+
+[tool.coverage.report]
+show_missing = true
+sort = "-Cover"
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+[tool.coverage.html]
+show_contexts = true
 
 [tool.ruff.lint]
 select = [
