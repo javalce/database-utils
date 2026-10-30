@@ -21,7 +21,7 @@ A generic and type-safe abstraction for database operations. The repository patt
 The core module has no external dependencies. Install only what you need:
 
 - Core `database-utils` - No dependencies
-- SQLAlchemy extras - Install only when you use it with `[sqlalchemy]`
+- SQLAlchemy integration - Only required if using the SQLAlchemy module
 - Easy to integrate into existing projects
 
 ### Type Safety
@@ -144,7 +144,7 @@ class Order(SQLAlchemyBase):
 # repositories.py
 class OrderRepository(SQLAlchemyRepository):
     model_type = Order
-    
+
     def get_customer_orders(self, customer_id: int):
         # Custom logic
         pass
@@ -164,7 +164,7 @@ class DataIngestionRepository(SQLAlchemyRepository):
     def bulk_insert(self, records: list[dict]):
         """Efficient bulk insertion"""
         pass
-    
+
     def get_unprocessed(self):
         """Get pending records"""
         pass
