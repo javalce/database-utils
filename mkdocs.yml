@@ -50,16 +50,8 @@ repo_name: javalce/database-utils
 repo_url: https://github.com/javalce/database-utils
 
 nav:
-  - Get started: index.md
-  - Markdown in 5min: markdown.md
-
-# extra:
-#   social:
-#     - icon: fontawesome/brands/github
-#       link: https://github.com/user/repo
-#
-#     - icon: fontawesome/brands/mastodon
-#       link: https://fosstodon.org/@user
+  - Database Utils: index.md
+  - Features: features.md
 
 markdown_extensions:
   # Material for MkDocs
