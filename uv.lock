@@ -423,12 +423,6 @@ name = "database-utils"
 version = "0.1.0a2"
 source = { editable = "." }
 
-[package.optional-dependencies]
-sqlalchemy = [
-    { name = "sqlalchemy", version = "2.0.55", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "sqlalchemy", version = "2.1.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-]
-
 [package.dev-dependencies]
 dev = [
     { name = "black" },
@@ -471,8 +465,6 @@ tests = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "sqlalchemy", marker = "extra == 'sqlalchemy'" }]
-provides-extras = ["sqlalchemy"]
 
 [package.metadata.requires-dev]
 dev = [

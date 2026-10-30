@@ -33,9 +33,6 @@ dependencies = []
 Homepage = "https://github.com/javalce/database-utils"
 Repository = "https://github.com/javalce/database-utils"
 
-[project.optional-dependencies]
-sqlalchemy = ["sqlalchemy"]
-
 
 [dependency-groups]
 dev = [
