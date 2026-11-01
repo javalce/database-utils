@@ -1,4 +1,5 @@
 """Tests for database_utils.sqlalchemy.session module."""
+
 from collections.abc import Callable
 from typing import Any
 
@@ -40,18 +41,14 @@ class TestCreateSessionFactory:
 
     def test_session_factory_with_custom_autoflush(self, sqlite_engine: Any) -> None:
         """Test session factory with custom autoflush setting."""
-        factory: Callable[..., Session] = create_session_factory(
-            sqlite_engine, autoflush=True
-        )
+        factory: Callable[..., Session] = create_session_factory(sqlite_engine, autoflush=True)
         session = factory()
 
         assert session.autoflush is True
 
         session.close()
 
-    def test_session_factory_with_custom_expire_on_commit(
-        self, sqlite_engine: Any
-    ) -> None:
+    def test_session_factory_with_custom_expire_on_commit(self, sqlite_engine: Any) -> None:
         """Test session factory with custom expire_on_commit setting."""
         factory: Callable[..., Session] = create_session_factory(
             sqlite_engine, expire_on_commit=True
@@ -65,9 +62,7 @@ class TestCreateSessionFactory:
     def test_session_factory_with_info_dict(self, sqlite_engine: Any) -> None:
         """Test session factory with info dictionary."""
         info = {"custom_key": "custom_value"}
-        factory: Callable[..., Session] = create_session_factory(
-            sqlite_engine, info=info
-        )
+        factory: Callable[..., Session] = create_session_factory(sqlite_engine, info=info)
         session = factory()
 
         assert session.info["custom_key"] == "custom_value"
@@ -76,9 +71,7 @@ class TestCreateSessionFactory:
 
     def test_session_factory_with_custom_session_class(self, sqlite_engine: Any) -> None:
         """Test session factory with custom Session class."""
-        factory: Callable[..., Session] = create_session_factory(
-            sqlite_engine, class_=Session
-        )
+        factory: Callable[..., Session] = create_session_factory(sqlite_engine, class_=Session)
         session = factory()
 
         assert isinstance(session, Session)
@@ -158,9 +151,7 @@ class TestDbSessionResource:
         # Data was not committed, so it should be None
         assert retrieved is None
 
-    def test_db_session_resource_autocommit_true_calls_commit(
-        self, session_factory: Any
-    ) -> None:
+    def test_db_session_resource_autocommit_true_calls_commit(self, session_factory: Any) -> None:
         """Test that autocommit=True triggers commit (simplified test)."""
         # Just verify the behavior is accepted without raising
         gen = db_session_resource(session_factory, autocommit=True)
@@ -204,18 +195,14 @@ class TestDbSessionResource:
 
         assert retrieved is None
 
-    def test_db_session_resource_reraises_exception(
-        self, session_factory: Any
-    ) -> None:
+    def test_db_session_resource_reraises_exception(self, session_factory: Any) -> None:
         """Test that exceptions are re-raised after rollback."""
         with pytest.raises(ValueError, match="Test error"):
             gen = db_session_resource(session_factory)
             session = next(gen)  # noqa: F841
             raise ValueError("Test error")
 
-    def test_db_session_resource_with_generator_protocol(
-        self, session_factory: Any
-    ) -> None:
+    def test_db_session_resource_with_generator_protocol(self, session_factory: Any) -> None:
         """Test that db_session_resource works as a generator."""
         gen = db_session_resource(session_factory)
         session = next(gen)

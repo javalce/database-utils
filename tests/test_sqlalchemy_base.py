@@ -1,4 +1,5 @@
 """Tests for database_utils.sqlalchemy.base module."""
+
 from sqlalchemy import MetaData
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -15,10 +16,7 @@ class TestSQLAlchemyBase:
     def test_sqlalchemy_base_has_naming_convention(self) -> None:
         """Test that SQLAlchemyBase metadata includes naming convention."""
         assert SQLAlchemyBase.metadata.naming_convention is not None
-        assert (
-            SQLAlchemyBase.metadata.naming_convention
-            == DATABASE_NAMING_CONVENTION
-        )
+        assert SQLAlchemyBase.metadata.naming_convention == DATABASE_NAMING_CONVENTION
 
     def test_database_naming_convention_has_all_keys(self) -> None:
         """Test that naming convention covers all constraint types."""
@@ -67,7 +65,4 @@ class TestSQLAlchemyBase:
             name: Mapped[str] = mapped_column()
 
         assert TestModel.metadata is SQLAlchemyBase.metadata
-        assert (
-            TestModel.metadata.naming_convention
-            == DATABASE_NAMING_CONVENTION
-        )
+        assert TestModel.metadata.naming_convention == DATABASE_NAMING_CONVENTION

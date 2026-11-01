@@ -6,7 +6,7 @@ from sqlalchemy import inspect, select
 from sqlalchemy.orm import Session
 
 from database_utils._internal.utils import is_pydantic_model
-from database_utils.abc import Repository
+from database_utils.abc import CrudRepository, Repository
 
 from .base import SQLAlchemyBase
 
@@ -16,8 +16,11 @@ CreateSchemaType = TypeVar("CreateSchemaType")
 UpdateSchemaType = TypeVar("UpdateSchemaType")
 
 
-class SQLAlchemyRepository(Repository[ModelType, IdType, CreateSchemaType, UpdateSchemaType]):
-    """SQLAlchemy implementation of the Repository abstract base class."""
+class SQLAlchemyRepository(Repository[ModelType, IdType]):
+    """Simplified SQLAlchemy repository where save operates on model instances.
+
+    Use this when you don't need separate DTOs for creation and updates.
+    """
 
     model_type: type[ModelType]
 
@@ -46,6 +49,33 @@ class SQLAlchemyRepository(Repository[ModelType, IdType, CreateSchemaType, Updat
 
         return self.session.scalar(stmt)
 
+    def save(self, entity: ModelType) -> ModelType:
+        """Save a model instance (create if new, update if already tracked).
+
+        Detects if the model is already tracked in the session:
+        - If tracked: performs flush and refresh
+        - If not tracked: adds to session, then flush and refresh
+        """
+        # Check if model is already in the session
+        if entity not in self.session:
+            self.session.add(entity)
+
+        self.session.flush()
+        self.session.refresh(entity)
+
+        return entity
+
+    def delete(self, entity: ModelType) -> None:
+        """Delete an existing instance from the database."""
+        self.session.delete(entity)
+
+
+class SQLAlchemyCrudRepository(
+    SQLAlchemyRepository[ModelType, IdType],
+    CrudRepository[ModelType, IdType],
+):
+    """SQLAlchemy implementation of CrudRepository with separate create/update schemas."""
+
     def create(self, obj_in: CreateSchemaType) -> ModelType:
         """Create a new instance with the provided data."""
         if is_pydantic_model(obj_in):
@@ -55,11 +85,7 @@ class SQLAlchemyRepository(Repository[ModelType, IdType, CreateSchemaType, Updat
 
         entity = self.model_type(**data)
 
-        self.session.add(entity)
-        self.session.flush()
-        self.session.refresh(entity)
-
-        return entity
+        return self.save(entity)
 
     def update(self, entity: ModelType, obj_in: UpdateSchemaType) -> ModelType:
         """Update an existing instance with the provided data."""
@@ -73,11 +99,4 @@ class SQLAlchemyRepository(Repository[ModelType, IdType, CreateSchemaType, Updat
             if hasattr(entity, field):
                 setattr(entity, field, value)
 
-        self.session.flush()
-        self.session.refresh(entity)
-
-        return entity
-
-    def delete(self, entity: ModelType) -> None:
-        """Delete an existing instance from the database."""
-        self.session.delete(entity)
+        return self.save(entity)

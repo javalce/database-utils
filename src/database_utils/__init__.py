@@ -1,5 +1,6 @@
-from .abc import Repository
+from .abc import CrudRepository, Repository
 
 __all__ = [
+    "CrudRepository",
     "Repository",
 ]

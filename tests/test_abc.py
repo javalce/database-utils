@@ -1,10 +1,11 @@
 """Tests for database_utils.abc module."""
+
 from collections.abc import Sequence
 from typing import Any
 
 import pytest
 
-from database_utils.abc import Repository
+from database_utils.abc import CrudRepository
 
 
 class MockModel:
@@ -15,8 +16,8 @@ class MockModel:
         self.name = name
 
 
-class MockRepository(Repository[MockModel, int, dict[str, Any], dict[str, Any]]):
-    """Concrete implementation of Repository for testing."""
+class MockRepository(CrudRepository[MockModel, int]):
+    """Concrete implementation of CrudRepository for testing."""
 
     def __init__(self) -> None:
         self.data: dict[int, MockModel] = {}
@@ -29,6 +30,18 @@ class MockRepository(Repository[MockModel, int, dict[str, Any], dict[str, Any]])
     def get(self, id: int) -> MockModel | None:
         """Return a model by ID."""
         return self.data.get(id)
+
+    def save(self, entity: MockModel) -> MockModel:
+        """Save a model instance."""
+        if entity.id is not None and entity.id in self.data:
+            # Update existing
+            self.data[entity.id] = entity
+        elif entity.id is None or entity.id not in self.data:
+            # Create new
+            self.counter += 1
+            entity.id = self.counter
+            self.data[self.counter] = entity
+        return entity
 
     def create(self, obj_in: dict[str, Any]) -> MockModel:
         """Create a new model."""
@@ -55,12 +68,12 @@ class TestRepository:
     def test_repository_is_abstract(self) -> None:
         """Test that Repository cannot be instantiated directly."""
         with pytest.raises(TypeError):
-            Repository()  # type: ignore[call-arg]
+            CrudRepository()  # type: ignore[call-arg]
 
     def test_repository_requires_list_implementation(self) -> None:
         """Test that concrete implementations must implement list()."""
 
-        class IncompleteRepo(Repository):  # type: ignore[type-arg]
+        class IncompleteRepo(CrudRepository):  # type: ignore[type-arg]
             pass
 
         with pytest.raises(TypeError):
@@ -74,6 +87,7 @@ class TestRepository:
         assert hasattr(repo, "create")
         assert hasattr(repo, "update")
         assert hasattr(repo, "delete")
+        assert hasattr(repo, "save")
 
     def test_mock_repository_list(self) -> None:
         """Test list() returns all instances."""

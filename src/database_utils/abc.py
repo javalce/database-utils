@@ -8,8 +8,12 @@ CreateSchemaType = TypeVar("CreateSchemaType")
 UpdateSchemaType = TypeVar("UpdateSchemaType")
 
 
-class Repository(ABC, Generic[ModelType, IdType, CreateSchemaType, UpdateSchemaType]):
-    """Abstract base class for a repository handling instances of ModelType"""
+class Repository(ABC, Generic[ModelType, IdType]):
+    """Abstract base class for a simplified repository where the model is the schema.
+
+    This interface is for simpler use cases where save and delete operate directly
+    on model instances without separate DTOs or schemas.
+    """
 
     @abstractmethod
     def list(self) -> Sequence[ModelType]:
@@ -22,6 +26,23 @@ class Repository(ABC, Generic[ModelType, IdType, CreateSchemaType, UpdateSchemaT
         ...
 
     @abstractmethod
+    def save(self, entity: ModelType) -> ModelType:
+        """Save a model instance (create if new, update if already tracked)"""
+        ...
+
+    @abstractmethod
+    def delete(self, entity: ModelType) -> None:
+        """Delete a model instance from the database"""
+        ...
+
+
+class CrudRepository(Repository[ModelType, IdType]):
+    """Abstract base class for a repository handling instances of ModelType with separate schemas.
+
+    Extends Repository to support separate DTOs for creation and update operations.
+    """
+
+    @abstractmethod
     def create(self, obj_in: CreateSchemaType) -> ModelType:
         """Create a new instance with the provided data"""
         ...
@@ -29,9 +50,4 @@ class Repository(ABC, Generic[ModelType, IdType, CreateSchemaType, UpdateSchemaT
     @abstractmethod
     def update(self, entity: ModelType, obj_in: UpdateSchemaType) -> ModelType:
         """Update an existing instance with the provided data"""
-        ...
-
-    @abstractmethod
-    def delete(self, entity: ModelType) -> None:
-        """Delete an existing instance from the database"""
         ...

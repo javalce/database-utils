@@ -1,4 +1,5 @@
 """Tests for database_utils._internal.utils module."""
+
 import pytest
 
 from database_utils._internal.utils import is_pydantic_model

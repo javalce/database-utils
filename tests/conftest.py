@@ -1,4 +1,5 @@
 """Shared test fixtures and configuration for database-utils tests."""
+
 from collections.abc import Generator
 from dataclasses import dataclass
 from typing import Any

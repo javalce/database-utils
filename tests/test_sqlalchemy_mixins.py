@@ -1,4 +1,5 @@
 """Tests for database_utils.sqlalchemy.mixins module."""
+
 from typing import Any
 
 from sqlalchemy import inspect
@@ -147,10 +148,7 @@ class TestSoftDeleteMixin:
         mapper = inspect(TestModel8)
         is_deleted_col = mapper.columns["is_deleted"]
         # The column has a default value set
-        assert (
-            is_deleted_col.default is not None
-            or is_deleted_col.server_default is not None
-        )
+        assert is_deleted_col.default is not None or is_deleted_col.server_default is not None
 
     def test_deleted_at_nullable(self) -> None:
         """Test that deleted_at is nullable."""
