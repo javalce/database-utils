@@ -10,8 +10,12 @@ Database Utils provides a set of utilities designed to simplify working with dat
 
 ### Repository Pattern
 
-A generic and type-safe abstraction for database operations. The repository pattern provides a consistent interface for accessing data, regardless of the underlying implementation.
+A generic and type-safe abstraction for database operations. Two patterns to choose from:
 
+- **Simple Pattern** - Direct model operations with `save()` and `delete()`
+- **CRUD Pattern** - Full schema flexibility with `create()`, `update()`, and `delete()`
+
+Benefits:
 - **Generic typing** - Full support for TypeVar, maintaining type safety
 - **Flexible implementations** - Extend with your own operations
 - **Abstraction layer** - Decouple your code from the specific database
@@ -46,129 +50,59 @@ Complete SQLAlchemy integration for production applications.
 
 ### SQLAlchemyBase
 
-Declarative base class with built-in naming conventions:
+Declarative base class with built-in naming conventions for database constraints:
 
-```python
-from database_utils.sqlalchemy import SQLAlchemyBase
-
-class User(SQLAlchemyBase):
-    __tablename__ = "users"
-    # Your model here
-```
+- **Indexes** - `idx_tablename_column`
+- **Foreign keys** - `fk_tablename_column_referred_table`
+- **Unique constraints** - `uq_tablename_column`
+- **Check constraints** - `ck_tablename_constraint`
 
 **Benefits:**
+- Alembic ready - Compatible with automatic migrations
+- Production grade - Designed for production projects
+- Consistent - Naming conventions across your project
 
-- **Naming conventions** - Consistent conventions for constraints
-  - Indexes: `idx_tablename_column`
-  - Foreign keys: `fk_tablename_column_referred_table`
-  - Unique constraints: `uq_tablename_column`
-  - Check constraints: `ck_tablename_constraint`
+### Repository Patterns
 
-- **Alembic ready** - Compatible with automatic migrations
-- **Production grade** - Designed for production projects
+#### SQLAlchemyRepository
 
-### SQLAlchemyRepository
+For straightforward use cases where the model is the schema.
 
-Ready-to-use implementation of the repository pattern:
-
-```python
-from sqlalchemy.orm import Session
-from database_utils.sqlalchemy import SQLAlchemyRepository
-
-class UserRepository(SQLAlchemyRepository):
-    model_type = User
-
-repo = UserRepository(session)
-users = repo.list()
-user = repo.get(user_id)
-```
-
-**Common operations:**
-
+Operations:
 - `list()` - Get all records
 - `get(id)` - Get a record by ID
-- `create(obj_in)` - Create a new record
-- `update(db_obj, obj_in)` - Update a record
-- `delete(id)` - Delete a record
+- `save(model)` - Create or update a record
+- `delete(model)` - Delete a record
+
+**Use when:**
+- You don't need separate DTOs
+- The model itself is your data transfer object
+- You want minimal boilerplate
+
+#### SQLAlchemyCrudRepository
+
+For complex applications with separate schemas for input and updates.
+
+Operations:
+- `list()` - Get all records
+- `get(id)` - Get a record by ID
+- `create(obj_in)` - Create with validation schema
+- `update(db_obj, obj_in)` - Update with partial schema
+- `delete(model)` - Delete a record
+
+**Use when:**
+- You need validation and transformation on input data
+- You want to use Pydantic or dataclasses for schemas
+- You need fine-grained control over creation vs. update logic
+- Your API and persistence models differ
 
 ### Model Mixins
 
 Reusable mixins for common functionality:
 
-```python
-from database_utils.sqlalchemy.mixins import TimestampMixin
-
-class Article(SQLAlchemyBase, TimestampMixin):
-    __tablename__ = "articles"
-    title: Mapped[str] = mapped_column(String)
-    # created_at and updated_at automatically included
-```
-
-**Available mixins:**
-
 - `TimestampMixin` - Automatic `created_at` and `updated_at` fields
+- `SoftDeleteMixin` - Soft delete support with `is_deleted` and `deleted_at`
 - Customize for your specific needs
-
-## Use Cases
-
-### Modern Web Applications
-
-Perfect for FastAPI, Flask, or any web framework:
-
-```python
-from fastapi import FastAPI, Depends
-from sqlalchemy.orm import Session
-from database_utils.sqlalchemy import SQLAlchemyRepository
-
-app = FastAPI()
-
-async def get_repository(session: Session = Depends(get_session)):
-    return UserRepository(session)
-
-@app.get("/users")
-async def list_users(repo: UserRepository = Depends(get_repository)):
-    return repo.list()
-```
-
-### Microservices
-
-Keep a clean and testable data access layer:
-
-```python
-# models.py
-class Order(SQLAlchemyBase):
-    __tablename__ = "orders"
-    customer_id: Mapped[int]
-    total: Mapped[Decimal]
-
-# repositories.py
-class OrderRepository(SQLAlchemyRepository):
-    model_type = Order
-
-    def get_customer_orders(self, customer_id: int):
-        # Custom logic
-        pass
-
-# services.py
-class OrderService:
-    def __init__(self, repo: OrderRepository):
-        self.repo = repo
-```
-
-### ETL and Data Processing
-
-Simplify batch operations:
-
-```python
-class DataIngestionRepository(SQLAlchemyRepository):
-    def bulk_insert(self, records: list[dict]):
-        """Efficient bulk insertion"""
-        pass
-
-    def get_unprocessed(self):
-        """Get pending records"""
-        pass
-```
 
 ## Integrated Best Practices
 
@@ -178,9 +112,6 @@ Database Utils incorporates best practices from SQLAlchemy and Alembic:
 - ✅ **Query optimization** - Type-safe queries
 - ✅ **Constraint safety** - Consistent naming for constraints
 - ✅ **Schema versioning** - Compatible with migrations
+- ✅ **Flexible patterns** - Choose the right pattern for your needs
 
-## Next Steps
 
-- Explore examples in the [repository](https://github.com/javalce/database-utils)
-- Read the [quick start guide](index.md)
-- Check out the [API documentation](../api/index.md)

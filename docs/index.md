@@ -16,7 +16,8 @@ Database work should be straightforward. **Database Utils** provides:
 
 - ✅ Consistent naming conventions for migrations and constraints
 - ✅ Reusable model mixins and base classes
-- ✅ Type-safe repository pattern when you need it
+- ✅ Two flexible repository patterns: simple and CRUD
+- ✅ Type-safe operations throughout
 - ✅ Zero dependencies in core; install your adapter separately (e.g., SQLAlchemy)
 - ✅ Designed for production use with Alembic migrations
 - ✅ Built-in best practices for scalable database schemas
@@ -41,44 +42,85 @@ pip install database-utils
 
 ## Quick Start
 
-Define your SQLAlchemy models with `SQLAlchemyBase`:
+### 1. Define Your Model
 
 ```python
-from sqlalchemy import mapped_column, Integer, String, Mapped, create_engine, select
+from sqlalchemy import String, create_engine
+from sqlalchemy.orm import Mapped, mapped_column, Session
 from database_utils.sqlalchemy import SQLAlchemyBase
 
 class User(SQLAlchemyBase):
     __tablename__ = "users"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    name: Mapped[str] = mapped_column(String, nullable=False)
-    email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100))
+    email: Mapped[str] = mapped_column(String(100), unique=True)
 
 engine = create_engine("sqlite:///db.sqlite")
 SQLAlchemyBase.metadata.create_all(engine)
-
-with Session(engine) as session:
-    # Create
-    user = User(name="Alice", email="alice@example.com")
-    session.add(user)
-    session.commit()
-
-    # Query
-    stmt = select(User).where(User.email == "alice@example.com")
-    result = session.scalar(stmt)
 ```
 
-`SQLAlchemyBase` proporciona:
+### 2. Choose Your Pattern
 
-- Convenciones de nombres para migraciones
-- Base declarativa lista para Alembic
-- Type safety con Mapped y mapped_column
+**Simple Pattern** — Model is your schema:
 
-## Next Steps
+```python
+from database_utils.sqlalchemy import SQLAlchemyRepository
 
-- 📖 Read the [documentation](https://github.com/javalce/database-utils)
-- 🐛 Report issues on [GitHub](https://github.com/javalce/database-utils/issues)
-- 🤝 Contribute on [GitHub](https://github.com/javalce/database-utils)
+class UserRepository(SQLAlchemyRepository):
+    model_type = User
+
+with Session(engine) as session:
+    repo = UserRepository(session)
+    user = User(name="Alice", email="alice@example.com")
+    saved = repo.save(user)  # Create
+    user = repo.get(saved.id)  # Read
+    saved.name = "Alice Updated"
+    repo.save(saved)  # Update
+    repo.delete(saved)  # Delete
+```
+
+**CRUD Pattern** — Separate schemas for validation:
+
+```python
+from dataclasses import dataclass
+from database_utils.sqlalchemy import SQLAlchemyCrudRepository
+
+@dataclass
+class UserCreate:
+    name: str
+    email: str
+
+@dataclass
+class UserUpdate:
+    name: str | None = None
+    email: str | None = None
+
+class UserRepository(SQLAlchemyCrudRepository):
+    model_type = User
+
+with Session(engine) as session:
+    repo = UserRepository(session)
+    user = repo.create(UserCreate(name="Alice", email="alice@example.com"))
+    user = repo.get(user.id)
+    updated = repo.update(user, UserUpdate(name="Alice Updated"))
+    repo.delete(updated)
+```
+
+## Repository Patterns
+
+| Pattern | Use Case | Schema |
+|---------|----------|--------|
+| **[Simple](tutorial/simple-pattern.md)** | Prototypes, simple CRUD | Model is schema |
+| **[CRUD](tutorial/crud-pattern.md)** | Production APIs, validation | Separate schemas |
+
+## Features
+
+- 📚 **[Explore all features](features.md)**
+- 🎓 **[Learn with tutorials](tutorial/index.md)**
+- 🗂️ **Repository pattern** for clean data access
+- 🎨 **Model mixins** for reusable functionality
+- 🛠️ **SQLAlchemy integration** built-in
+- 🔧 **Extensible design** for custom implementations
 
 ## License
 

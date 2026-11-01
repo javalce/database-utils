@@ -52,6 +52,10 @@ repo_url: https://github.com/javalce/database-utils
 nav:
   - Database Utils: index.md
   - Features: features.md
+  - Tutorial:
+      - QuickStart: tutorial/quickstart.md
+      - Simple Pattern: tutorial/simple-pattern.md
+      - CRUD Pattern: tutorial/crud-pattern.md
 
 markdown_extensions:
   # Material for MkDocs
